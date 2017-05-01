@@ -3,6 +3,7 @@ var appRouter = function(app) {
     app.get("/", function(req, res) {
         
         console.log("Receive from web client ",req.query);
+        
         var appInfo = {
             appID : '268585663526955',
             appSecret : 'b3e12bed580a0f3ae2f330525d85d908'
@@ -23,14 +24,25 @@ var appRouter = function(app) {
             if (!error && response.statusCode == 200) {
                 console.log("Receive from FB",body); 
                 body = JSON.parse(body);
-                var url2="http://tokenmanager:3000/newtoken?id="+ userID +'&access_token=' + body.access_token +'&expires=' + body.expires_in;
-                console.log(url2);
-                request(url2, function (error, response, body) {
-                    if (!error && response.statusCode == 200) {
-                        console.log("Receive from Token Manager",body); 
+                // var url2="http://token-manager:3000/token?id="+ userID +'&access_token=' + body.access_token +'&expires=' + body.expires_in;
+                // console.log(url2);
+                // request(url2, function (error, response, body) {
+                //     if (!error && response.statusCode == 200) {
+                //         console.log("Receive from Token Manager",body); 
+                //     }
+                //     else if (error){console.log(error);}
+                // });
+                
+                request.post(
+                    'http://token-manager:3000/token',
+                    { json: { id: userID, access_token:body.access_token, expires:body.expires_in} },
+                    function (error, response, body) {
+                        if (!error && response.statusCode == 200) {
+                            console.log(body)
+                        }
                     }
-                    else if (error){console.log(error);}
-                });
+                );
+                
                 
                 return res.send(body);
             }
